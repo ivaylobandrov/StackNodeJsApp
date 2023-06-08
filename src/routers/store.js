@@ -8,9 +8,9 @@ router.post('/store', (req, res) => {
   const value = req.body.value;
   const ttl = req.body.ttl ? req.body.ttl : 30;
 
-  ttlMap.set(key, { value, ttl: Date.now() + ttl * 1000 });
+  ttlMap.set(key, value, ttl);
 
-  res.status(200).json({ message: 'OK' });
+  return res.status(200).json({ message: 'Item added successfully' });
 });
 
 // Endpoint to get the value for a key
@@ -18,13 +18,10 @@ router.get('/store/:key', (req, res) => {
   const key = req.params.key;
   const value = ttlMap.get(key);
 
-  if (value && value.ttl < Date.now()) {
-    ttlMap.delete(key);
-    res.json({ message: 'OK' });
-  } else if (value) {
-    res.json({ message: 'OK', value: value.value });
+  if (!value) {
+    return res.status(404).json({ message: 'Timed out or not found' });
   } else {
-    res.json({ message: 'OK', value: '' });
+    return res.json({ message: 'OK', value: value });
   }
 });
 
@@ -33,10 +30,15 @@ router.delete('/store/:key', (req, res) => {
   const key = req.params.key;
 
   if (ttlMap.store.size === 0) {
-    res.status(200).json({ message: 'Store is empty' });
-  } else {
+    return res.status(404).json({ message: 'Store is empty' });
+  }
+
+  if (!ttlMap.has(key)) {
+    return res.status(404).json({ message: 'No item found' });
+  }
+  else {
     ttlMap.delete(key);
-    res.status(200).json({ message: 'OK' });
+    return res.status(200).json({ message: 'Item deleted successfully' });
   }
 });
 

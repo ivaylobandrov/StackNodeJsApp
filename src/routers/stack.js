@@ -6,17 +6,16 @@ const stack = require('../stack/stack');
 router.post('/stack', (req, res) => {
   const item = req.body.item;
   stack.push(item);
-  res.status(200).json({ message: 'OK' });
+  return res.status(201).json({ message: 'Item added to the stack' });
 });
 
 // Endpoint to return the top item of the stack
 router.get('/stack', (req, res) => {
   if (stack.isEmpty()) {
-    res.status(404).json({ message: 'Stack is empty' });
+    return res.status(404).json({ message: 'Stack is empty' });
   } else {
-    const topItem = stack.getTopItem();
-    stack.pop(); // Remove the top item from the stack
-    res.json({ value: topItem });
+    const topItem = stack.pop();
+    return res.json({ value: topItem });
   }
 });
 

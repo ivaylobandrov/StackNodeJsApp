@@ -9,10 +9,10 @@ describe('Stack API', () => {
       const response = await request(app)
         .post('/stack')
         .send({ item: itemToAdd })
-        .expect(200);
+        .expect(201);
 
       // Assertions
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(201);
       expect(stack.stack[0]).toBe(itemToAdd);
     });
   });

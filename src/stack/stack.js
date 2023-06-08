@@ -22,14 +22,6 @@ class Stack {
     return this.stack.pop();
   }
 
-  getTopItem() {
-    if (this.isEmpty()) {
-      return 'The stack is empty';
-    }
-
-    return this.stack[this.stack.length - 1];
-  }
-
   isEmpty() {
     return this.stack.length === 0;
   }

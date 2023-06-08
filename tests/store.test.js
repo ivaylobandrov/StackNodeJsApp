@@ -45,11 +45,11 @@ describe('Store API', () => {
 
       const response = await request(app)
         .get(`/store/${mockData.key}`)
-        .expect(200);
+        .expect(404);
 
       // Assertions
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual({ message: 'OK', value: '' });
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({ message: "Timed out or not found" });
     });
 
     it('should return an empty value for an invalid key', async () => {
@@ -57,11 +57,11 @@ describe('Store API', () => {
 
       const response = await request(app)
         .get(`/store/${invalidKey}`)
-        .expect(200);
+        .expect(404);
 
       // Assertions
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual({ message: 'OK', value: '' });
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({ message: "Timed out or not found" });
     });
   });
 
@@ -76,19 +76,29 @@ describe('Store API', () => {
 
       // Assertions
       expect(response.status).toBe(200);
-      expect(response.body).toEqual({ message: 'OK' });
+      expect(response.body).toEqual({ message: "Item deleted successfully" });
     });
 
     it('should have no effect for an invalid key', async () => {
-      const invalidKey = 'invalidKey';
+      ttlMap.set(mockData.key, mockData.value);
 
       const response = await request(app)
-        .delete(`/store/${invalidKey}`)
-        .expect(200);
+        .delete(`/store/invalidkey`)
+        .expect(404);
 
       // Assertions
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual({ message: 'Store is empty' });
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({ message: "No item found" });
+    });
+
+    it('should return store is empty if item is not saved to store', async () => {
+      const response = await request(app)
+        .delete(`/store/invalidkeyvalue`)
+        .expect(404);
+
+      // Assertions
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({ message: "Store is empty" });
     });
   });
 });

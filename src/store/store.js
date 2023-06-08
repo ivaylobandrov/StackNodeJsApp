@@ -10,9 +10,9 @@ class TTLMap {
     return ttlMapInstance;
   }
 
-  set(key, value, ttl = 30) {
-    const expirationTime = Date.now() + ttl * 1000;
-    this.store.set(key, { value, ttl: expirationTime });
+  set(key, value, expirationTime = 30) {
+    const ttl = Date.now() + expirationTime * 1000;
+    this.store.set(key, { value, ttl });
   }
 
   get(key) {
@@ -21,6 +21,12 @@ class TTLMap {
       return item.value;
     }
     return null;
+  }
+
+  has(key) {
+    if (this.store.has(key)) {
+      return true;
+    }
   }
 
   delete(key) {
