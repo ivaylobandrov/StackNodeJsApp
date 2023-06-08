@@ -87,10 +87,10 @@ describe('Store API', () => {
 
       const response = await request(app)
         .delete(`/store/${invalidKey}`)
-        .expect(200);
+        .expect(404);
 
       // Assertions
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(404);
       expect(response.body).toEqual({ message: 'Store is empty' });
     });
   });

@@ -4,14 +4,10 @@ class TTLMap {
   constructor() {
     if (!ttlMapInstance) {
       ttlMapInstance = this;
-      this.ttlMap = {};
+      this.ttlMap = new Map();
     }
 
     return ttlMapInstance;
-  }
-
-  getTTLMap() {
-    return this.ttlMap;
   }
 }
 

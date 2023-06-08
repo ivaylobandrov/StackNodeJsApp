@@ -16,7 +16,7 @@ router.get('/stack', (req, res) => {
   } else {
     const topItem = stack.getTopItem();
     stack.pop(); // Remove the top item from the stack
-    res.json({ item: topItem });
+    res.json({ value: topItem });
   }
 });
 

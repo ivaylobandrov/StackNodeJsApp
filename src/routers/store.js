@@ -9,7 +9,7 @@ router.post('/store', (req, res) => {
   const value = req.body.value;
   const ttl = req.body.ttl ? req.body.ttl : 30;
 
-  ttlMap.ttlMap[key] = Date.now() + ttl * 1000;
+  ttlMap.ttlMap.set(key, Date.now() + ttl * 1000);
 
   stack.push({ key, value });
   res.status(200).json({ message: 'OK' });
@@ -19,8 +19,8 @@ router.post('/store', (req, res) => {
 router.get('/store/:key', (req, res) => {
   const key = req.params.key;
 
-  if (key in ttlMap.ttlMap && ttlMap.ttlMap[key] < Date.now()) {
-    delete ttlMap[key];
+  if (ttlMap.ttlMap.has(key) && ttlMap.ttlMap.get(key) < Date.now()) {
+    ttlMap.ttlMap.delete(key);
     const index = stack.stack.findIndex(item => item.key === key);
     if (index !== -1) {
       stack.stack.splice(index, 1);
@@ -39,12 +39,12 @@ router.get('/store/:key', (req, res) => {
 // Endpoint to delete the value for a key
 router.delete('/store/:key', (req, res) => {
   const key = req.params.key;
-  delete ttlMap.ttlMap[key];
+  ttlMap.ttlMap.delete(key);
   const index = stack.stack.findIndex(item => item.key === key);
   if (index !== -1) {
     stack.stack.splice(index, 1);
   } else if (stack.stack.length < 1) {
-    return res.status(200).json({ message: 'Store is empty' });
+    return res.status(404).json({ message: 'Store is empty' });
   }
   res.status(200).json({ message: 'OK' });
 });
