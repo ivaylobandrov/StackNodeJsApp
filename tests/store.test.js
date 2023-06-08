@@ -1,9 +1,9 @@
 const request = require('supertest');
-const app = require('../src/app')
+const app = require('../src/app');
+const ttlMap = require('../src/store/store');
+const stack = require('../src/stack/stack');
 
 describe('Store API', () => {
-    const stack = []
-    const ttlMap = {};
     const mockData = {
       key: 'name',
       value: 'John',
@@ -12,7 +12,7 @@ describe('Store API', () => {
 
     beforeEach(() => {
     // Clear the store and stack before each test
-    stack.length = 0;
+    stack.stack.length = 0;
     });
 
   describe('POST /store', () => {
@@ -30,8 +30,8 @@ describe('Store API', () => {
   describe('GET /store/:key', () => {
     it('should return the value for a valid key', async () => {
       // Populate the store and stack
-      ttlMap[mockData.key] = Date.now() + mockData.ttl * 1000;
-      stack.push({ key: mockData.key, value: mockData.value });
+      ttlMap.ttlMap[mockData.key] = Date.now() + mockData.ttl * 1000;
+      stack.stack.push({ key: mockData.key, value: mockData.value });
 
       const response = await request(app)
         .get(`/store/${mockData.key}`)
@@ -39,12 +39,13 @@ describe('Store API', () => {
 
       // Assertions
         expect(response.status).toBe(200);
+        expect(response.body).toEqual({ message: 'OK', value: mockData.value });
     });
 
     it('should return an empty value for an expired key', async () => {
       // Set an expired key in the store and remove from stack
-      ttlMap[mockData.key] = Date.now() - 1000;
-      stack.splice(0, 1);
+      ttlMap.ttlMap[mockData.key] = Date.now() - 1000;
+      stack.stack.splice(0, 1);
 
       const response = await request(app)
         .get(`/store/${mockData.key}`)
@@ -69,8 +70,8 @@ describe('Store API', () => {
   describe('DELETE /store/:key', () => {
     it('should delete the value for a valid key', async () => {
       // Populate the store and stack
-      ttlMap[mockData.key] = Date.now() + mockData.ttl * 1000;
-      stack.push({ key: mockData.key, value: mockData.value });
+      ttlMap.ttlMap[mockData.key] = Date.now() + mockData.ttl * 1000;
+      stack.stack.push({ key: mockData.key, value: mockData.value });
 
       const response = await request(app)
         .delete(`/store/${mockData.key}`)
@@ -78,6 +79,7 @@ describe('Store API', () => {
 
       // Assertions
       expect(response.status).toBe(200);
+      expect(response.body).toEqual({ message: 'OK' });
     });
 
     it('should have no effect for an invalid key', async () => {
@@ -89,6 +91,7 @@ describe('Store API', () => {
 
       // Assertions
       expect(response.status).toBe(200);
+      expect(response.body).toEqual({ message: 'Store is empty' });
     });
   });
 });

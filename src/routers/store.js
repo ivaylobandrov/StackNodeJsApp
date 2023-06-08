@@ -1,8 +1,7 @@
 const express = require('express');
 const router = new express.Router();
-
-const ttlMap = {};
-const stack = [];
+const stack = require('../stack/stack');
+const ttlMap = require('../store/store');
 
 // Endpoint to add a key-value pair to the store
 router.post('/store', (req, res) => {
@@ -10,29 +9,29 @@ router.post('/store', (req, res) => {
   const value = req.body.value;
   const ttl = req.body.ttl ? req.body.ttl : 30;
 
-  ttlMap[key] = Date.now() + ttl * 1000;
+  ttlMap.ttlMap[key] = Date.now() + ttl * 1000;
 
   stack.push({ key, value });
-  res.sendStatus(200);
+  res.status(200).json({ message: 'OK' });
 });
 
 // Endpoint to get the value for a key
 router.get('/store/:key', (req, res) => {
   const key = req.params.key;
 
-  if (key in ttlMap && ttlMap[key] < Date.now()) {
+  if (key in ttlMap.ttlMap && ttlMap.ttlMap[key] < Date.now()) {
     delete ttlMap[key];
-    const index = stack.findIndex(item => item.key === key);
+    const index = stack.stack.findIndex(item => item.key === key);
     if (index !== -1) {
-      stack.splice(index, 1);
+      stack.stack.splice(index, 1);
     }
-    res.send('');
+    res.json({ message: 'OK' });
   } else {
-    const item = stack.find(item => item.key === key);
+    const item = stack.stack.find(item => item.key === key);
     if (item) {
-      res.send(item.value);
+      res.json({ message: 'OK', value: item.value });
     } else {
-      res.send('');
+      res.json({ message: 'OK', value: '' });
     }
   }
 });
@@ -40,12 +39,14 @@ router.get('/store/:key', (req, res) => {
 // Endpoint to delete the value for a key
 router.delete('/store/:key', (req, res) => {
   const key = req.params.key;
-  delete ttlMap[key];
-  const index = stack.findIndex(item => item.key === key);
+  delete ttlMap.ttlMap[key];
+  const index = stack.stack.findIndex(item => item.key === key);
   if (index !== -1) {
-    stack.splice(index, 1);
+    stack.stack.splice(index, 1);
+  } else if (stack.stack.length < 1) {
+    return res.status(200).json({ message: 'Store is empty' });
   }
-  res.sendStatus(200);
+  res.status(200).json({ message: 'OK' });
 });
 
-module.exports = router
+module.exports = router;
