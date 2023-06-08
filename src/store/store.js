@@ -24,9 +24,7 @@ class TTLMap {
   }
 
   has(key) {
-    if (this.store.has(key)) {
-      return true;
-    }
+    return this.store.has(key);
   }
 
   delete(key) {
