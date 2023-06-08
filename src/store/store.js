@@ -4,10 +4,15 @@ class TTLMap {
   constructor() {
     if (!ttlMapInstance) {
       ttlMapInstance = this;
-      this.ttlMap = new Map();
+      this.store = new Map();
     }
 
     return ttlMapInstance;
+  }
+
+  set(key, value, ttl = 30) {
+    const expirationTime = Date.now() + ttl * 1000;
+    this.store.set(key, { value, ttl: expirationTime });
   }
 }
 
