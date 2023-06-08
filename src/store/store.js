@@ -14,6 +14,18 @@ class TTLMap {
     const expirationTime = Date.now() + ttl * 1000;
     this.store.set(key, { value, ttl: expirationTime });
   }
+
+  get(key) {
+    const item = this.store.get(key);
+    if (item && item.ttl >= Date.now()) {
+      return item.value;
+    }
+    return null;
+  }
+
+  delete(key) {
+    this.store.delete(key);
+  }
 }
 
 module.exports = new TTLMap();

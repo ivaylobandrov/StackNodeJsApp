@@ -8,7 +8,7 @@ router.post('/store', (req, res) => {
   const value = req.body.value;
   const ttl = req.body.ttl ? req.body.ttl : 30;
 
-  ttlMap.store.set(key, { value, ttl: Date.now() + ttl * 1000 });
+  ttlMap.set(key, { value, ttl: Date.now() + ttl * 1000 });
 
   res.status(200).json({ message: 'OK' });
 });
@@ -16,10 +16,10 @@ router.post('/store', (req, res) => {
 // Endpoint to get the value for a key
 router.get('/store/:key', (req, res) => {
   const key = req.params.key;
-  const value = ttlMap.store.get(key);
+  const value = ttlMap.get(key);
 
   if (value && value.ttl < Date.now()) {
-    ttlMap.store.delete(key);
+    ttlMap.delete(key);
     res.json({ message: 'OK' });
   } else if (value) {
     res.json({ message: 'OK', value: value.value });
@@ -35,7 +35,7 @@ router.delete('/store/:key', (req, res) => {
   if (ttlMap.store.size === 0) {
     res.status(200).json({ message: 'Store is empty' });
   } else {
-    ttlMap.store.delete(key);
+    ttlMap.delete(key);
     res.status(200).json({ message: 'OK' });
   }
 });
